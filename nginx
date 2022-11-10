@@ -1,0 +1,30 @@
+location / {
+   if (!-e $request_filename) {
+   		rewrite  ^(.*)$  /index.php?s=/$1  last;
+    }
+}
+
+#限流设置，这只是设置流量限制和共享内存区域的参数，但实际上并不限制请求速率。具体的限制需要定义具体的url
+limit_req_zone $binary_remote_addr zone=contentRateLimit:10m rate=2r/s;
+
+location /read_content {
+            limit_req zone=contentRateLimit burst=4 nodelay;
+            content_by_lua_file /root/lua/read_content.lua;
+        }
+
+limit_conn_zone $binary_remote_addr zone=addr:10m;  表示限制根据用户的IP地址来显示，设置存储地址为的内存大小10M
+limit_conn addr 2;   表示 同一个地址只允许连接2次。
+
+limit_conn_zone $binary_remote_addr zone=perip:10m;
+limit_conn_zone $server_name zone=perserver:10m;
+server {
+    listen       80;
+    server_name  localhost;
+    charset utf-8;
+    location / {
+        limit_conn perip 10;#单个客户端ip与服务器的连接数．
+        limit_conn perserver 100; ＃限制与服务器的总连接数
+        root   html;
+        index  index.html index.htm;
+    }
+}

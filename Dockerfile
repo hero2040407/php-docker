@@ -1,4 +1,4 @@
-FROM php:7.3-fpm
+FROM php:7.4-fpm
 
 # version defined
 ENV SWOOLE_VERSION 4.4.8
@@ -22,10 +22,15 @@ libmemcached-dev \
 zlib1g-dev \
 vim \
 && apt-get clean \
-&& apt-get autoremove -y
+&& apt-get autoremove -y \
+&& wget https://github.com/alanxz/rabbitmq-c/releases/download/v0.11.0/rabbitmq-c-0.11.0.tar.gz \
+&& tar -zxvf rabbitmq-c-0.8.0.tar.gz \
+&& cd rabbitmq-c-0.8.0 \
+&& ./configure --prefix=/usr/local/rabbitmq-c \
+&& make && make install
 
 # phpredis
-RUN pecl install redis-${PHPREDIS_VERSION} \ 
+RUN pecl install redis-${PHPREDIS_VERSION} \
     && docker-php-ext-enable redis
 
 RUN docker-php-ext-install mysqli && docker-php-ext-install pdo_mysql && docker-php-ext-enable opcache

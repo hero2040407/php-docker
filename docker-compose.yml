@@ -1,0 +1,11 @@
+# yaml 配置
+version: '3'
+services:
+  php-fpm:
+    build: .
+    ports:
+      - "9000:9000"
+  redis:
+    image: "redis:latest"
+  nginx:
+    image: "nginx:latest"

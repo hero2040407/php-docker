@@ -1,0 +1,35 @@
+#下载docker
+yum -y install docker
+
+#启动docker daemon
+systemctl start docker
+
+#构建docker网络
+docker network create -d bridge net
+
+#安装elastic
+docker run --name elasticsearch --network net \
+  -p 9200:9200 -p 9300:9300 \
+  -e "discovery.type=single-node" \
+  -d docker.elastic.co/elasticsearch/elasticsearch:7.4.0
+
+#安装redis
+docker run --name redis --network net \
+   -d redis:latest
+
+#安装php
+使用Dockerfile生成镜像
+docker run --name php-fpm -network net \
+-v /www/html:/var/www/html \
+-d 771a13c8fe5c
+
+#安装nginx
+docker run -p 80:80 -p 443:443 \
+--network php-net --name nginx \
+--privileged=true \
+--link php-fpm:php \
+-v /etc/nginx/conf/nginx.conf:/etc/nginx/nginx.conf \
+-v /etc/nginx/conf/conf.d:/etc/nginx/conf.d \
+-v /etc/nginx/log:/var/log/nginx \
+-v /www/html:/usr/share/nginx/html \
+-d nginx:latest

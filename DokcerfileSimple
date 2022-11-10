@@ -1,0 +1,47 @@
+FROM php:7.4-fpm
+
+# version defined
+ENV PHPREDIS_VERSION 5.1.1
+
+# set timezone
+RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo 'Asia/Shanghai' > /etc/timezone \
+    && apt-get update \
+    && apt-get install -y \
+    curl \
+    wget \
+    zip \
+    libz-dev \
+    libssl-dev \
+    libnghttp2-dev \
+    libpcre3-dev \
+    libmemcached-dev \
+    zlib1g-dev \
+    vim \
+    && apt-get clean \
+    && apt-get autoremove -y \
+    && wget https://github.com/alanxz/rabbitmq-c/releases/download/v0.11.0/rabbitmq-c-0.11.0.tar.gz \
+    && tar -zxvf rabbitmq-c-0.8.0.tar.gz \
+    && cd rabbitmq-c-0.8.0 \
+    && ./configure --prefix=/usr/local/rabbitmq-c \
+    && make && make install \
+    && cp /usr/local/rabbitmq-c/lib/pkgconfig/librabbitmaq.pc /usr/lib/pkgconfig
+
+# phpredis
+RUN pecl install redis-${PHPREDIS_VERSION} \
+    && pecl install event \
+    && pecl install pcntl \
+    && pecl install posix \
+    && pecl install amqp
+
+RUN docker-php-ext-enable redis \
+    && docker-php-ext-enable event \
+    && docker-php-ext-enable pcntl \
+    && docker-php-ext-enable posix \
+    && docker-php-ext-install mysqli \
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-enable opcache
+
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/bin/composer \
+    && composer self-update --clean-backups

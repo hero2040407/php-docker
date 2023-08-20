@@ -32,7 +32,8 @@ RUN pecl install redis-${PHPREDIS_VERSION} \
     && pecl install event \
     && pecl install pcntl \
     && pecl install posix \
-    && pecl install amqp
+    && pecl install amqp \
+    && pecl install mysql_xdevapi
 
 RUN docker-php-ext-enable redis \
     && docker-php-ext-enable event \

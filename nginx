@@ -2,6 +2,9 @@ location / {
    if (!-e $request_filename) {
    		rewrite  ^(.*)$  /index.php?s=/$1  last;
     }
+    #添加响应头
+    add_header Cache-Control no-cache;
+    error_page 404   /page/404/index.html;
 }
 
 #限流设置，这只是设置流量限制和共享内存区域的参数，但实际上并不限制请求速率。具体的限制需要定义具体的url
@@ -28,3 +31,12 @@ server {
         index  index.html index.htm;
     }
 }
+
+#    ssl_certificate      cert.pem;
+#    ssl_certificate_key  cert.key;
+
+#    ssl_session_cache    shared:SSL:1m;
+#    ssl_session_timeout  5m;
+
+#    ssl_ciphers  HIGH:!aNULL:!MD5;
+#    ssl_prefer_server_ciphers  on;
